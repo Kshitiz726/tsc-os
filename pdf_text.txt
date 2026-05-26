@@ -1,0 +1,100 @@
+  
+ Social  Circle  Operating  system    Main  things  we  need  for  social  circle:  
+1.  Client  CRM  2.  Task  management  with  ownership  3.  Recurring  tasks  4.  Content  production  pipeline  5.  Automated  Telegram  reminders  (this  sounds  great)  6.  Content  calendar  7.  Invoice/payment  tracking  (this  should  be  only  viewed  by  me)  8.  Team  performance  tracking  9.  File/asset  management  (if  we  can  some  how  connect  Goggle  drive)  10.  Mobile-friendly  dashboard  
+Also  every  task  needs  status  stages  like:  To  Do  >  In  Progress  >  Waiting  Approval  >  Completed.   For  content  we  need:  Idea  >  Script  >  Shoot  Scheduled  >  Filmed  >  Editing  >  Review  >  Approved  >  Posted.   I  don’t  want  it  to  feel  complicated.  Clean  UI  and  fast  workflow  is  more  important  than  
+too
+ 
+many
+ 
+features.
+  My  main  goal  is  Can  the  business  run  smoother  and  scale  without  constant  
+manual
+ 
+chasing?
+  
+I’m  gonna  break  it  down  what  would  be  important  to  have  from  my  every  day  use.  
+ 
+ 
+ 
+ 
+
+1.  DASHBOARD  (Main  Home)   This  page  should  feel  like  everyday  check  in  page  Today’s  Priority  Tasks  
+1.  overdue  tasks  2.  shoots  today  3.  edits  due  4.  approvals  waiting  5.  invoices  unpaid  (for  me  to  view)  6.  client  meeting  call  pending   
+Team  Performance  graph  (to  motivate  everyone)  
+1.  completed  tasks  2.  delayed  tasks  3.  active  projects  4.  content  pending  approval  
+Quick  Actions  Buttons:  
+1.  Assign  task  2.  Add  client  3.  Create  shoot  day  4.  Create  invoice  (only  for  me  to  do  this)  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2.  Tasks    
+Every  task  needs:  Task  title  Assigned  person  Client  Deadline  Priority  Status  Notes  Attachments  (if  we  can  have  our  google  drive  link  to  see)  Statuses:  To  Do,  In  Progress,  Waiting  Approval,  Completed,  Delayed,  Cancelled    And  MOST  importantly:  Every  task  should  have  who’s  responsible  and  if  it’s  not  done  
+constantly
+ 
+remind
+ 
+until
+ 
+it’s
+ 
+done
+ 
+please
+  RECURRING  TASKS  (VERY  IMPORTANT)  Daily  Reply  to  comments  Share  IG  stories  Check  TikTok  trends  Client  follow-ups  Check  ad  performance   Weekly  Upload  schedules  Team  meetings  Analytics  reports  Invoice  checks  Monthly  Content  planning  Client  reports  Renew  contracts  Send  Invoice   Strategy  reviews   
+ 
+ 
+3.  CONTENT  PRODUCTION  
+I  need  this  to  be  a  proper   content  stages.   IDEA  Script  Shoot  Scheduled   Filmed   Editing  Review  Client  Approval  status   Scheduled   Posted    4.  AUTOMATED  REMINDERS  Telegram  is  actually  a  sick  idea  if  you  can  some  how  make  all  in  one  space  for  me  to  
+work
+ 
+would
+ 
+be
+ 
+nice.
+  24  hours  before  deadline  overdue  alerts   Also:  Notify  you  when  tasks  delayed,  notify  team  when  new  task  assigned,  notify  Social  media  
+manager
+ 
+when
+ 
+approval
+ 
+pending
+  Stuff  like  this  just  any  task  is  not  done  they  need  that  reminder    5.  PERFORMANCE  SYSTEM  (it’s  nice  to  have  this  for  boys  to  see)  completion  rate  average  delay  time  client  satisfaction  revisions  needed  uploads  completed   We  need  to  keep  this  fun  we  don’t  want  to  punish  anyone  yet  lol      
+6.  Client  (more  like  a  CRM  system  for  now  we  don’t  give  access  to  them  only  for  us  to  
+see)
+ 
+ 
+brand  name  contact  details  package  monthly  deliverables  shoot  days  (like  a  log  system,  every  time  we  go  there  we  can  have  a  record)  invoices  (only  for  me  to  see)  payment  status  (only  for  me  to  see)  content  calendar  (ideas  when  social  media  manager  creates  so  who  ever  filming  can  see  
+as
+ 
+well)
+ 
+ drive  links  passwords/social  logins  notes  performance  reports  (we  use  Metricool  to  send  them  reports,  don’t  know  if  we  need  this  
+on
+ 
+here)
+ Status  tags:  Active  Pending  Payment  Onboarding  Paused   Each  client  should  have  these  stuff  where  social  media  manager  and  content  
+creator
+ 
+can
+ 
+see
+ brand  assets  (drive  link)  raw  footage  (drive  link)  Contracts    
+ 
+ 
+ 
+ 
+ 
+ 
+7.  FINANCE  &  INVOICES   This  one  is  fully  for  me  to  use    This  should  include:  invoices  sent  payment  due  dates  outstanding  balances  monthly  revenue  recurring  retainers  who  paid  late  automatic  reminders   For  me  to  save  time  so  I  don’t  forget  things  so  all  in  a  dashboard  to  see  whats  needs  
+action
+ 
+    Social  circle  Role  system   Manager  /  Client  Communication  (Anj)  Social  media  manager  (Harshal)   Content  Creator  (Suryansh)  (Shan)  Admin  (Shan)   Finance  (shan)  Out  reach  and  other  (Raj)    This  can  be  name  based  system    
+ 

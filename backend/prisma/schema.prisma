@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int        @id @default(autoincrement())
+  telegramId        String?    @unique
+  name              String?    
+  photoUrl          String?    
+  registrationState String     @default("PENDING_NAME") 
+  points            Int        @default(0) 
+  baseSalary        Float      @default(0)
+  salaryPayDate     Int        @default(1) 
+  role              String     @default("EMPLOYEE") // Roles: MANAGER, SOCIAL_MEDIA_MANAGER, CONTENT_CREATOR, ADMIN, FINANCE, OUTREACH
+  isAdmin           Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  tasks             Task[]     @relation("AssignedTasks")
+  createdTasks      Task[]     @relation("CreatedTasks")
+  contentWrites     ContentTask[] @relation("ContentWriters")
+  contentShoots     ContentTask[] @relation("ContentShooters")
+  contentEdits      ContentTask[] @relation("ContentEditors")
+  contentSchedules  ContentTask[] @relation("ContentSchedulers")
+  createdContent    ContentTask[] @relation("CreatedContent")
+  pointLogs         PointLog[]
+  payments          EmployeePayment[]
+  privateJobs       PrivateJob[]
+}
+
+model Client {
+  id                  Int       @id @default(autoincrement())
+  companyName         String
+  contactEmail        String
+  logoUrl             String?   
+  package             String?   // New Field
+  monthlyDeliverables String?   // New Field
+  driveLinks          String?   // New Field
+  passwords           String?   // New Field
+  notes               String?   // New Field
+  status              String    @default("ACTIVE") // ACTIVE, PENDING_PAYMENT, ONBOARDING, PAUSED
+  invoices            Invoice[]
+  tasks               Task[]    @relation("ClientTasks")
+  contentTasks        ContentTask[] @relation("ClientContent")
+  driveFolderId       String?   // Google Drive Folder ID
+  createdAt           DateTime  @default(now())
+}
+
+model Invoice {
+  id                Int       @id @default(autoincrement())
+  clientId          Int?
+  client            Client?   @relation(fields: [clientId], references: [id])
+  clientName        String?   // Stores the client name if the client is deleted
+  amount            Float
+  status            String    @default("UNPAID") // UNPAID, PARTIAL, PAID
+  dueDate           DateTime
+  issueDate         DateTime  @default(now())
+  isInternal        Boolean   @default(false)
+  description       String
+  paidAt            DateTime?
+  createdAt         DateTime  @default(now())
+  payments          InvoicePayment[]
+}
+
+model InvoicePayment {
+  id          Int      @id @default(autoincrement())
+  invoiceId   Int
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount      Float
+  date        DateTime
+  method      String   @default("BANK_TRANSFER") // CASH, BANK_TRANSFER, CARD
+  createdAt   DateTime @default(now())
+}
+
+model Task {
+  id              Int       @id @default(autoincrement())
+  taskId          String?   // Generated e.g., TSC_TASK_Client_...
+  title           String    // Renamed from description
+  description     String?   // Added optional detailed description/notes
+  deadline        DateTime
+  priority        String    @default("MEDIUM") // LOW, MEDIUM, HIGH
+  status          String    @default("TO_DO") // TO_DO, IN_PROGRESS, WAITING_APPROVAL, COMPLETED, DELAYED, CANCELLED
+  recurring       String?   // DAILY, WEEKLY, MONTHLY, null
+  attachments     String?   // Deprecated / optional manual links
+  driveFolderId   String?   // Google Drive Folder ID
+  driveFolderLink String?   // Link to the Google Drive folder
+  delayReason     String?   // Optional reason for delay
+  
+  clientId        Int?
+  client          Client?   @relation("ClientTasks", fields: [clientId], references: [id])
+
+  reminder24hSent Boolean   @default(false)
+  reminder4hSent  Boolean   @default(false)
+  
+  assignedUsers   User[]    @relation("AssignedTasks")
+  
+  createdById     Int?
+  createdBy       User?     @relation("CreatedTasks", fields: [createdById], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  pointLogs       PointLog[]
+}
+
+model ContentTask {
+  id              Int       @id @default(autoincrement())
+  contentId       String?   // Generated e.g., TSC_BJB_20260515
+  title           String    
+  description     String?   
+  idea            String?   // The original idea/brief from admin
+  deadline        DateTime
+  shootDate       DateTime?
+  postDate        DateTime?
+  status          String    @default("IDEA") // IDEA, SCRIPT, SHOOT_SCHEDULED, FILMED, EDITING, REVIEW, CLIENT_APPROVAL, SCHEDULED, POSTED
+  platform        String?   // INSTAGRAM, TIKTOK, YOUTUBE etc.
+  driveLink       String?   // Link to main content folder
+  
+  clientId        Int?
+  client          Client?   @relation("ClientContent", fields: [clientId], references: [id])
+  
+  reminder12hSent     Boolean   @default(false)
+  reminder4hSent      Boolean   @default(false)
+  postShootPromptSent Boolean   @default(false)
+  shootDateConfirmed  Boolean   @default(false)
+  delayedPenaltyApplied Boolean @default(false)
+  
+  scriptPath          String?   // Path to uploaded script file
+  scriptFolderLink    String?   // Google Drive link to Script subfolder
+  rawFolderLink       String?   // Google Drive link to Raw Footage subfolder
+  finalFolderLink     String?   // Google Drive link to Final Content subfolder
+  
+  scriptWriters   User[]    @relation("ContentWriters")
+  shooters        User[]    @relation("ContentShooters")
+  editors         User[]    @relation("ContentEditors")
+  schedulers      User[]    @relation("ContentSchedulers")
+  
+  createdById     Int?
+  createdBy       User?     @relation("CreatedContent", fields: [createdById], references: [id])
+
+  driveFolderId   String?   // Google Drive Folder ID for this content
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model PointLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  taskId    Int?
+  task      Task?    @relation(fields: [taskId], references: [id])
+  amount    Int      // Negative for penalty
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model Expense {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  category    String   @default("GENERAL") // SALARY, SOFTWARE, ADS, etc.
+  description String
+  date        DateTime @default(now())
+}
+
+model Income {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  source      String   @default("GENERAL") // GENERAL, INVOICE, EXTERNAL
+  description String
+  date        DateTime @default(now())
+}
+
+model EmployeePayment {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
+  employeeName String? // Stores name if employee is deleted
+  month       String   // e.g. "February 2026"
+  amount      Float
+  status      String   @default("UNPAID") // UNPAID, PAID
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model PrivateJob {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
+  employeeName String? // Stores name if employee is deleted
+  clientName  String
+  description String
+  amount      Float
+  date        DateTime
+  status      String   @default("UNPAID") // UNPAID, PAID
+  method      String?
+  createdAt   DateTime @default(now())
+}
