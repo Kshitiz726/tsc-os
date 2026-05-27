@@ -67,11 +67,18 @@ export function ContentPipeline() {
  }
  };
 
- useEffect(() => { 
- fetchData(); 
- const intervalId = setInterval(fetchData, 5000);
- return () => clearInterval(intervalId);
- }, []);
+  useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    if (window.location.hash === '#new-content') {
+      setShowModal(true);
+      window.location.hash = '';
+    }
+  }, []);
 
  const handleCreate = async (e: React.FormEvent) => {
  e.preventDefault();

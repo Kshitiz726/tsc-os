@@ -62,6 +62,16 @@ export function CrmDashboard() {
  return () => clearInterval(intervalId);
  }, []);
 
+ useEffect(() => {
+    if (window.location.hash === '#new-client') {
+      setShowClientModal(true);
+      window.location.hash = '';
+    } else if (window.location.hash === '#new-invoice') {
+      setViewMode('INVOICE_GENERATOR');
+      window.location.hash = '';
+    }
+  }, []);
+
  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
  const file = e.target.files?.[0];
  if (file) {

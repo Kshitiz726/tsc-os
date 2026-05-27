@@ -68,6 +68,13 @@ export function TaskManager() {
  return () => clearInterval(intervalId);
  }, []);
 
+  useEffect(() => {
+    if (window.location.hash === '#new-task') {
+      setShowModal(true);
+      window.location.hash = '';
+    }
+  }, []);
+
  const handleCreateTask = async (e: React.FormEvent) => {
  e.preventDefault();
  const formData = new FormData();

@@ -58,25 +58,25 @@ export function MainDashboard({ setActiveTab }: MainDashboardProps) {
           <TrendingUp className="text-indigo-600" size={24} /> Quick Actions
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          <button onClick={() => setActiveTab('tasks')} className="bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
+          <button onClick={() => { window.location.hash = 'new-task'; setActiveTab('tasks'); }} className="bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
             <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm">
               <Plus size={24} />
             </div>
             <span className="font-semibold text-slate-700">Assign Task</span>
           </button>
-          <button onClick={() => setActiveTab('crm')} className="bg-white border border-slate-200 hover:border-emerald-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
+          <button onClick={() => { window.location.hash = 'new-client'; setActiveTab('crm'); }} className="bg-white border border-slate-200 hover:border-emerald-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
             <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-sm">
               <Plus size={24} />
             </div>
             <span className="font-semibold text-slate-700">Add Client</span>
           </button>
-          <button onClick={() => setActiveTab('content')} className="bg-white border border-slate-200 hover:border-purple-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
+          <button onClick={() => { window.location.hash = 'new-content'; setActiveTab('content'); }} className="bg-white border border-slate-200 hover:border-purple-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
             <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300 shadow-sm">
               <Calendar size={24} />
             </div>
             <span className="font-semibold text-slate-700">Create Shoot</span>
           </button>
-          <button onClick={() => setActiveTab('finance')} className="bg-white border border-slate-200 hover:border-orange-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
+          <button onClick={() => { window.location.hash = 'new-invoice'; setActiveTab('crm'); }} className="bg-white border border-slate-200 hover:border-orange-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 transition-all duration-300 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 group">
             <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300 shadow-sm">
               <FileText size={24} />
             </div>
