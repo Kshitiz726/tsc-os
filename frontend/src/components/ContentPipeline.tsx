@@ -13,6 +13,8 @@ const COLUMNS = [
  { id: 'CLIENT_APPROVAL', title: 'Client Approval', color: 'bg-rose-50/80 text-rose-700 border-rose-200' },
  { id: 'APPROVED', title: 'Approved', color: 'bg-emerald-50/80 text-emerald-700 border-emerald-200' },
  { id: 'SCHEDULED', title: 'Scheduled', color: 'bg-teal-50/80 text-teal-700 border-teal-200' },
+ { id: 'DELAYED', title: 'Delayed', color: 'bg-red-50 text-red-700 border-red-200' },
+ { id: 'CANCELLED', title: 'Cancelled', color: 'bg-gray-100 text-gray-700 border-gray-200 ' },
 ];
 
 export function ContentPipeline() {
@@ -264,14 +266,26 @@ export function ContentPipeline() {
  <Calendar size={12} /> Deadline: {new Date(task.deadline).toLocaleDateString()}
  </div>
 
+ {task.scriptDeadline && (
+ <div className="bg-blue-50 border border-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded mb-1 font-medium shadow-sm flex items-center gap-1">
+ 📝 Script Due: {new Date(task.scriptDeadline).toLocaleDateString()}
+ </div>
+ )}
+
  {task.shootDate && (
- <div className="bg-purple-50 border border-purple-100 text-purple-700 text-xs px-2 py-1.5 rounded mb-2 font-medium shadow-sm flex items-center gap-1">
+ <div className="bg-purple-50 border border-purple-100 text-purple-700 text-[10px] px-2 py-1 rounded mb-1 font-medium shadow-sm flex items-center gap-1">
  🎥 Shoot: {new Date(task.shootDate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
  </div>
  )}
 
+ {task.editDeadline && (
+ <div className="bg-pink-50 border border-pink-100 text-pink-700 text-[10px] px-2 py-1 rounded mb-1 font-medium shadow-sm flex items-center gap-1">
+ ✂️ Edit Due: {new Date(task.editDeadline).toLocaleDateString()}
+ </div>
+ )}
+
  {task.postDate && (
- <div className="bg-teal-50 border border-teal-100 text-teal-700 text-xs px-2 py-1.5 rounded mb-2 font-medium shadow-sm flex items-center gap-1">
+ <div className="bg-teal-50 border border-teal-100 text-teal-700 text-[10px] px-2 py-1 rounded mb-2 font-medium shadow-sm flex items-center gap-1">
  📅 Post: {new Date(task.postDate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
  </div>
  )}

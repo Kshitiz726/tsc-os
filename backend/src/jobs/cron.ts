@@ -7,6 +7,16 @@ export function startCronJobs(bot: Telegraf) {
   cron.schedule('* * * * *', async () => {
     console.log('Running task deadline checker...');
     const now = new Date();
+    
+    // Fetch admins for notifications
+    const admins = await prisma.user.findMany({ where: { isAdmin: true } });
+    const notifyAdmins = async (message: string) => {
+      for (const admin of admins) {
+        if (admin.telegramId && process.env.TELEGRAM_BOT_TOKEN !== 'mock_token_for_now') {
+          await bot.telegram.sendMessage(admin.telegramId, message, { parse_mode: 'HTML' }).catch(console.error);
+        }
+      }
+    };
 
     const pendingTasks = await prisma.task.findMany({
       where: {
@@ -58,6 +68,10 @@ export function startCronJobs(bot: Telegraf) {
             }
           ).catch(console.error);
         }
+
+        // Notify admins about the delayed general task
+        const assignees = task.assignedUsers.map(u => u.name || 'Unknown').join(', ');
+        await notifyAdmins(`🚨 <b>Task Delayed</b>\n\nTask "${task.title}" has passed its deadline and was marked as delayed.\n<b>Assigned to:</b> ${assignees}`);
       } 
       // 2. 4-Hour Warning
       else if (hoursUntilDeadline <= 4 && !task.reminder4hSent) {
@@ -104,45 +118,71 @@ export function startCronJobs(bot: Telegraf) {
     for (const content of activeContentTasks) {
       if (process.env.TELEGRAM_BOT_TOKEN === 'mock_token_for_now') continue;
 
-      // Overall Deadline Check (Penalty)
+      // --- Phase-Specific Penalties ---
+      
+      // 1. Scripting Phase Penalty
+      if (content.scriptDeadline && (content.status === 'IDEA' || content.status === 'SCRIPT')) {
+        const timeUntilScript = content.scriptDeadline.getTime() - now.getTime();
+        if (timeUntilScript < 0 && !content.scriptPenaltyApplied) {
+          await prisma.contentTask.update({ where: { id: content.id }, data: { scriptPenaltyApplied: true, status: 'DELAYED' } });
+          const writers = content.scriptWriters.map(u => u.name || 'Unknown').join(', ');
+          await notifyAdmins(`🚨 <b>Content Delayed</b>\n\nContent "${content.title}" (#${content.contentId}) was delayed at the <b>Scripting</b> phase.\n<b>Responsible:</b> ${writers}`);
+          
+          for (const user of content.scriptWriters) {
+            if (!user.telegramId) continue;
+            await prisma.user.update({ where: { id: user.id }, data: { points: { decrement: 5 } } });
+            await prisma.pointLog.create({ data: { userId: user.id, amount: -5, reason: `Script delayed penalty: ${content.title}` } });
+            bot.telegram.sendMessage(user.telegramId, `🚨 <b>SCRIPT DELAYED</b>\n\nYou failed to complete the script for #${content.contentId} on time. The task has been moved to DELAYED.\n<b>-5 points</b> have been deducted.`, { parse_mode: 'HTML' }).catch(console.error);
+          }
+        }
+      }
+
+      // 2. Shooting Phase Penalty (2 hours after shoot date)
+      if (content.shootDate && content.status === 'SHOOT_SCHEDULED') {
+        const timeUntilShootEnd = (content.shootDate.getTime() + (2 * 60 * 60 * 1000)) - now.getTime();
+        if (timeUntilShootEnd < 0 && !content.shootPenaltyApplied) {
+          await prisma.contentTask.update({ where: { id: content.id }, data: { shootPenaltyApplied: true, status: 'DELAYED' } });
+          const shooters = content.shooters.map(u => u.name || 'Unknown').join(', ');
+          await notifyAdmins(`🚨 <b>Content Delayed</b>\n\nContent "${content.title}" (#${content.contentId}) was delayed at the <b>Shooting</b> phase.\n<b>Responsible:</b> ${shooters}`);
+
+          for (const user of content.shooters) {
+            if (!user.telegramId) continue;
+            await prisma.user.update({ where: { id: user.id }, data: { points: { decrement: 5 } } });
+            await prisma.pointLog.create({ data: { userId: user.id, amount: -5, reason: `Shoot delayed penalty: ${content.title}` } });
+            bot.telegram.sendMessage(user.telegramId, `🚨 <b>SHOOT DELAYED</b>\n\nYou failed to mark the shoot as completed for #${content.contentId}. The task has been moved to DELAYED.\n<b>-5 points</b> have been deducted.`, { parse_mode: 'HTML' }).catch(console.error);
+          }
+        }
+      }
+
+      // 3. Editing Phase Penalty
+      if (content.editDeadline && (content.status === 'FILMED' || content.status === 'EDITING')) {
+        const timeUntilEdit = content.editDeadline.getTime() - now.getTime();
+        if (timeUntilEdit < 0 && !content.editPenaltyApplied) {
+          await prisma.contentTask.update({ where: { id: content.id }, data: { editPenaltyApplied: true, status: 'DELAYED' } });
+          const editors = content.editors.map(u => u.name || 'Unknown').join(', ');
+          await notifyAdmins(`🚨 <b>Content Delayed</b>\n\nContent "${content.title}" (#${content.contentId}) was delayed at the <b>Editing</b> phase.\n<b>Responsible:</b> ${editors}`);
+
+          for (const user of content.editors) {
+            if (!user.telegramId) continue;
+            await prisma.user.update({ where: { id: user.id }, data: { points: { decrement: 5 } } });
+            await prisma.pointLog.create({ data: { userId: user.id, amount: -5, reason: `Edit delayed penalty: ${content.title}` } });
+            bot.telegram.sendMessage(user.telegramId, `🚨 <b>EDIT DELAYED</b>\n\nYou failed to complete the edit for #${content.contentId} on time. The task has been moved to DELAYED.\n<b>-5 points</b> have been deducted.`, { parse_mode: 'HTML' }).catch(console.error);
+          }
+        }
+      }
+
+      // 4. Overall Deadline Check (Scheduler Penalty)
       const timeUntilContentDeadline = content.deadline.getTime() - now.getTime();
-      const hoursUntilContentDeadline = timeUntilContentDeadline / (1000 * 60 * 60);
+      if (timeUntilContentDeadline < 0 && !content.delayedPenaltyApplied && (content.status === 'REVIEW' || content.status === 'CLIENT_APPROVAL' || content.status === 'SCHEDULED')) {
+        await prisma.contentTask.update({ where: { id: content.id }, data: { delayedPenaltyApplied: true, status: 'DELAYED' } });
+        const schedulers = content.schedulers.map(u => u.name || 'Unknown').join(', ');
+        await notifyAdmins(`🚨 <b>Content Delayed</b>\n\nContent "${content.title}" (#${content.contentId}) was delayed at the <b>Final/Posting</b> phase.\n<b>Responsible:</b> ${schedulers}`);
 
-      if (hoursUntilContentDeadline < 0 && !content.delayedPenaltyApplied) {
-        await prisma.contentTask.update({
-          where: { id: content.id },
-          data: { delayedPenaltyApplied: true }
-        });
-
-        // Penalize all assigned users
-        const allAssigned = [
-          ...content.shooters, 
-          ...content.editors, 
-          ...content.schedulers, 
-          ...content.scriptWriters
-        ];
-        
-        // Deduplicate users
-        const uniqueUsers = Array.from(new Map(allAssigned.map(u => [u.id, u])).values());
-
-        for (const user of uniqueUsers) {
+        for (const user of content.schedulers) {
           if (!user.telegramId) continue;
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { points: { decrement: 5 } }
-          });
-          await prisma.pointLog.create({
-            data: {
-              userId: user.id,
-              amount: -5,
-              reason: `Content delayed penalty: ${content.title}`
-            }
-          });
-          bot.telegram.sendMessage(
-            user.telegramId,
-            `🚨 <b>DEADLINE MISSED</b>\n\nYou failed to complete content task #${content.contentId} on time.\n<b>-5 points</b> have been deducted.`,
-            { parse_mode: 'HTML' }
-          ).catch(console.error);
+          await prisma.user.update({ where: { id: user.id }, data: { points: { decrement: 5 } } });
+          await prisma.pointLog.create({ data: { userId: user.id, amount: -5, reason: `Posting delayed penalty: ${content.title}` } });
+          bot.telegram.sendMessage(user.telegramId, `🚨 <b>DEADLINE MISSED</b>\n\nYou failed to post/schedule #${content.contentId} on time. The task has been moved to DELAYED.\n<b>-5 points</b> have been deducted.`, { parse_mode: 'HTML' }).catch(console.error);
         }
       }
 

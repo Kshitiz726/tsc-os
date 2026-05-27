@@ -99,7 +99,7 @@ export function setupRoutes(app: Express, bot: any) {
         data: {
           title,
           description,
-          deadline: deadline ? new Date(deadline) : new Date(),
+          deadline: deadline ? (() => { const d = new Date(deadline); d.setUTCHours(23, 59, 59, 999); return d; })() : (() => { const d = new Date(); d.setUTCHours(23, 59, 59, 999); return d; })(),
           priority: priority || 'MEDIUM',
           recurring,
           assignedUsers: { connect: assignedUserIds.map((id: any) => ({ id: Number(id) })) },
@@ -335,7 +335,25 @@ export function setupRoutes(app: Express, bot: any) {
           contentId,
           description,
           idea,
-          deadline: new Date(deadline),
+          deadline: (() => { const d = new Date(deadline); d.setUTCHours(23, 59, 59, 999); return d; })(),
+          scriptDeadline: (() => { 
+            const d = new Date(deadline); d.setUTCHours(23, 59, 59, 999);
+            const now = new Date();
+            const dur = d.getTime() - now.getTime();
+            return new Date(now.getTime() + dur * 0.25);
+          })(),
+          shootDate: (() => { 
+            const d = new Date(deadline); d.setUTCHours(23, 59, 59, 999);
+            const now = new Date();
+            const dur = d.getTime() - now.getTime();
+            return new Date(now.getTime() + dur * 0.50);
+          })(),
+          editDeadline: (() => { 
+            const d = new Date(deadline); d.setUTCHours(23, 59, 59, 999);
+            const now = new Date();
+            const dur = d.getTime() - now.getTime();
+            return new Date(now.getTime() + dur * 0.75);
+          })(),
           platform,
           driveLink: folderLink,
           driveFolderId,
@@ -354,11 +372,10 @@ export function setupRoutes(app: Express, bot: any) {
       });
 
       if (process.env.TELEGRAM_BOT_TOKEN !== 'mock_token_for_now') {
-        const finalDate = new Date(content.deadline);
-        const durationMs = finalDate.getTime() - now.getTime();
-        const scriptDeadline = new Date(now.getTime() + durationMs * 0.25);
-        const shootDeadline = new Date(now.getTime() + durationMs * 0.50);
-        const editDeadline = new Date(now.getTime() + durationMs * 0.75);
+        const finalDate = content.deadline;
+        const scriptDeadline = content.scriptDeadline!;
+        const shootDeadline = content.shootDate!;
+        const editDeadline = content.editDeadline!;
 
         // Notify script writers
         for (const user of content.scriptWriters) {
