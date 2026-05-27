@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -113,7 +113,9 @@ model ContentTask {
   description     String?   
   idea            String?   // The original idea/brief from admin
   deadline        DateTime
+  scriptDeadline  DateTime?
   shootDate       DateTime?
+  editDeadline    DateTime?
   postDate        DateTime?
   status          String    @default("IDEA") // IDEA, SCRIPT, SHOOT_SCHEDULED, FILMED, EDITING, REVIEW, CLIENT_APPROVAL, SCHEDULED, POSTED
   platform        String?   // INSTAGRAM, TIKTOK, YOUTUBE etc.
@@ -126,7 +128,11 @@ model ContentTask {
   reminder4hSent      Boolean   @default(false)
   postShootPromptSent Boolean   @default(false)
   shootDateConfirmed  Boolean   @default(false)
+  
   delayedPenaltyApplied Boolean @default(false)
+  scriptPenaltyApplied  Boolean @default(false)
+  shootPenaltyApplied   Boolean @default(false)
+  editPenaltyApplied    Boolean @default(false)
   
   scriptPath          String?   // Path to uploaded script file
   scriptFolderLink    String?   // Google Drive link to Script subfolder
