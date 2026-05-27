@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import * as htmlToImage from 'html-to-image';
 import { jsPDF } from 'jspdf';
-import { ChevronLeft, Download, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, Download, Plus, Trash2, FileText } from 'lucide-react';
 
 export function InvoiceGenerator({ onBack, clients, onSave }: { onBack: () => void, clients: any[], onSave: (data: any) => Promise<void> }) {
  const previewRef = useRef<HTMLDivElement>(null);
@@ -117,6 +117,7 @@ export function InvoiceGenerator({ onBack, clients, onSave }: { onBack: () => vo
  </button>
  <div className="flex items-center gap-2 text-blue-600 font-bold text-lg">
  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+ <FileText size={18} />
  </div>
  Invoice Generator
  </div>
