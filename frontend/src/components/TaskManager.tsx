@@ -19,6 +19,7 @@ export function TaskManager() {
  
  // Modal State
  const [showModal, setShowModal] = useState(false);
+ const [isSaving, setIsSaving] = useState(false);
  const [title, setTitle] = useState('');
  const [description, setDescription] = useState('');
  const [deadline, setDeadline] = useState('');
@@ -31,6 +32,7 @@ export function TaskManager() {
 
  // Feedback Modal State
  const [feedbackTaskId, setFeedbackTaskId] = useState<number | null>(null);
+ const [isFeedbackSaving, setIsFeedbackSaving] = useState(false);
  const [feedbackMessage, setFeedbackMessage] = useState('');
  const [feedbackFile, setFeedbackFile] = useState<File | null>(null);
 
@@ -77,6 +79,8 @@ export function TaskManager() {
 
  const handleCreateTask = async (e: React.FormEvent) => {
  e.preventDefault();
+ setIsSaving(true);
+ try {
  const formData = new FormData();
  formData.append('title', title);
  formData.append('description', description);
@@ -101,6 +105,9 @@ export function TaskManager() {
  setTitle(''); setDescription(''); setDeadline(''); setPriority('MEDIUM'); 
  setRecurring(''); setTaskFiles(null); setAssignedUserIds([]); setClientId('');
  fetchData();
+ } finally {
+ setIsSaving(false);
+ }
  };
 
  const handleStatusChange = async (taskId: number, newStatus: string) => {
@@ -116,6 +123,8 @@ export function TaskManager() {
  e.preventDefault();
  if (!feedbackTaskId) return;
 
+ setIsFeedbackSaving(true);
+ try {
  const formData = new FormData();
  formData.append('message', feedbackMessage);
  if (feedbackFile) formData.append('attachment', feedbackFile);
@@ -129,6 +138,9 @@ export function TaskManager() {
  setFeedbackMessage('');
  setFeedbackFile(null);
  fetchData();
+ } finally {
+ setIsFeedbackSaving(false);
+ }
  };
 
  if (loading) return <div>Loading tasks...</div>;
@@ -426,7 +438,9 @@ export function TaskManager() {
  </div>
  <div className="px-8 py-5 border-t border-slate-100 bg-slate-50 flex gap-3 shrink-0">
  <button type="button"onClick={() => setShowModal(false)} className="flex-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-3 rounded-xl text-sm font-semibold transition-all">Cancel</button>
- <button type="submit"className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/25">Assign Task</button>
+ <button type="submit" disabled={isSaving} className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/25">
+ {isSaving ? 'Saving...' : 'Assign Task'}
+ </button>
  </div>
  </form>
  </div>
@@ -463,7 +477,9 @@ export function TaskManager() {
  </div>
  <div className="flex gap-3 pt-1">
  <button type="button"onClick={() => setFeedbackTaskId(null)} className="flex-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-3 rounded-xl text-sm font-semibold transition-all">Cancel</button>
- <button type="submit"className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/25">Send Feedback</button>
+ <button type="submit" disabled={isFeedbackSaving} className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/25">
+ {isFeedbackSaving ? 'Saving...' : 'Send Feedback'}
+ </button>
  </div>
  </form>
  </div>

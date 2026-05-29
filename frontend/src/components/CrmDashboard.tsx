@@ -14,6 +14,7 @@ export function CrmDashboard() {
 
  // New Client State
  const [showClientModal, setShowClientModal] = useState(false);
+ const [isSavingClient, setIsSavingClient] = useState(false);
  const [companyName, setCompanyName] = useState('');
  const [contactEmail, setContactEmail] = useState('');
  const [logoBase64, setLogoBase64] = useState('');
@@ -38,6 +39,7 @@ export function CrmDashboard() {
 
  // Payment Modal
  const [showPaymentModal, setShowPaymentModal] = useState(false);
+ const [isPaymentSaving, setIsPaymentSaving] = useState(false);
  const [paymentInvoice, setPaymentInvoice] = useState<any>(null);
  const [paymentAmount, setPaymentAmount] = useState('');
  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
@@ -86,6 +88,8 @@ export function CrmDashboard() {
  const handleCreateClient = async (e: React.FormEvent) => {
  e.preventDefault();
  const passwordsPayload = JSON.stringify(credentials);
+ setIsSavingClient(true);
+ try {
  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
@@ -96,12 +100,17 @@ export function CrmDashboard() {
  });
  closeClientModal();
  fetchData();
+ } finally {
+ setIsSavingClient(false);
+ }
  };
 
  const handleEditClient = async (e: React.FormEvent) => {
  e.preventDefault();
  if (!editClientId) return;
  const passwordsPayload = JSON.stringify(credentials);
+ setIsSavingClient(true);
+ try {
  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients/${editClientId}`, {
  method: 'PUT',
  headers: { 'Content-Type': 'application/json' },
@@ -112,6 +121,9 @@ export function CrmDashboard() {
  });
  closeClientModal();
  fetchData();
+ } finally {
+ setIsSavingClient(false);
+ }
  };
 
  const closeClientModal = () => {
@@ -987,7 +999,7 @@ export function CrmDashboard() {
 
   <div className="px-8 py-5 border-t border-slate-100 bg-slate-50 flex gap-3 shrink-0">
   <button type="button" onClick={closeClientModal} className="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-xl text-sm font-bold transition-all shadow-sm">Cancel</button>
-  <button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/25">{editClientId ? 'Save Changes' : 'Create Client'}</button>
+  <button type="submit" disabled={isSavingClient} className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/25">{isSavingClient ? 'Saving...' : (editClientId ? 'Save Changes' : 'Create Client')}</button>
   </div>
   </form>
   )}
@@ -1034,6 +1046,8 @@ export function CrmDashboard() {
   <button 
   onClick={async () => {
   if (!paymentAmount) return alert("Amount is required.");
+  setIsPaymentSaving(true);
+  try {
   await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invoices/${paymentInvoice.id}/payments`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -1041,10 +1055,14 @@ export function CrmDashboard() {
   });
   setShowPaymentModal(false);
   fetchData();
+  } finally {
+  setIsPaymentSaving(false);
+  }
   }}
-  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all duration-200 active:scale-95 flex items-center gap-2"
+  disabled={isPaymentSaving}
+  className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all duration-200 active:scale-95 flex items-center gap-2"
   >
-  <CheckCircle2 size={16} /> Confirm Payment
+  {isPaymentSaving ? 'Saving...' : <><CheckCircle2 size={16} /> Confirm Payment</>}
   </button>
   </div>
   </div>

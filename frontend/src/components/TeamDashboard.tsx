@@ -29,6 +29,7 @@ export function TeamDashboard() {
 
   // Payment Modal State
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isPaymentSaving, setIsPaymentSaving] = useState(false);
   const [newPaymentMonth, setNewPaymentMonth] = useState('January');
   const [newPaymentYear, setNewPaymentYear] = useState(new Date().getFullYear().toString());
   const [newPaymentAmount, setNewPaymentAmount] = useState('');
@@ -36,6 +37,7 @@ export function TeamDashboard() {
 
  // Private Jobs State
  const [showPrivateJobModal, setShowPrivateJobModal] = useState(false);
+ const [isJobSaving, setIsJobSaving] = useState(false);
  const [newJobClient, setNewJobClient] = useState('');
  const [newJobDesc, setNewJobDesc] = useState('');
  const [newJobAmount, setNewJobAmount] = useState('');
@@ -425,6 +427,8 @@ const exportPaymentsToExcel = () => {
  <button 
  onClick={async () => {
  if (!newJobClient || !newJobAmount) return alert("Client name and amount are required.");
+ setIsJobSaving(true);
+ try {
  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/private-jobs`, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
@@ -433,10 +437,14 @@ const exportPaymentsToExcel = () => {
  setShowPrivateJobModal(false);
  setNewJobClient(''); setNewJobDesc(''); setNewJobAmount('');
  fetchData();
+ } finally {
+ setIsJobSaving(false);
+ }
  }}
- className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all duration-200 active:scale-95"
+ disabled={isJobSaving}
+ className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all duration-200 active:scale-95"
  >
- Save Job
+ {isJobSaving ? 'Saving...' : 'Save Job'}
  </button>
  </div>
  </div>
@@ -525,6 +533,8 @@ const exportPaymentsToExcel = () => {
   <button 
   onClick={async () => {
   if (!newPaymentMonth || !newPaymentYear || !newPaymentAmount) return alert("All fields are required.");
+  setIsPaymentSaving(true);
+  try {
   await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/employee-payments`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -537,10 +547,14 @@ const exportPaymentsToExcel = () => {
   });
   setShowPaymentModal(false);
   fetchData();
+  } finally {
+  setIsPaymentSaving(false);
+  }
   }}
-  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all duration-200 active:scale-95"
+  disabled={isPaymentSaving}
+  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all duration-200 active:scale-95"
   >
-  Save Payment
+  {isPaymentSaving ? 'Saving...' : 'Save Payment'}
   </button>
   </div>
   </div>

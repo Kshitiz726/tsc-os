@@ -25,6 +25,7 @@ export function ContentPipeline() {
 
  // Modal State
  const [showModal, setShowModal] = useState(false);
+ const [isSaving, setIsSaving] = useState(false);
  const [title, setTitle] = useState('');
  const [description, setDescription] = useState('');
  const [deadline, setDeadline] = useState('');
@@ -40,6 +41,7 @@ export function ContentPipeline() {
  
  // Feedback Modal State
  const [feedbackTaskId, setFeedbackTaskId] = useState<number | null>(null);
+ const [isFeedbackSaving, setIsFeedbackSaving] = useState(false);
  const [feedbackMessage, setFeedbackMessage] = useState('');
  const [feedbackFile, setFeedbackFile] = useState<File | null>(null);
 
@@ -49,6 +51,7 @@ export function ContentPipeline() {
  const [historyClientFilter, setHistoryClientFilter] = useState('ALL');
  
  const [rescheduleModal, setRescheduleModal] = useState<{taskId: number, date: string, note: string} | null>(null);
+ const [isRescheduleSaving, setIsRescheduleSaving] = useState(false);
 
  const fetchData = async () => {
  try {
@@ -82,6 +85,8 @@ export function ContentPipeline() {
 
  const handleCreate = async (e: React.FormEvent) => {
  e.preventDefault();
+ setIsSaving(true);
+ try {
  const formData = new FormData();
  formData.append('title', title);
  formData.append('description', description);
@@ -111,6 +116,9 @@ export function ContentPipeline() {
  setScriptWriterIds([]); setShooterIds([]); setEditorIds([]); setSchedulerIds([]); 
  setClientId(''); setContentFiles(null);
  fetchData();
+ } finally {
+ setIsSaving(false);
+ }
  };
 
  const handlePingApproval = async (taskId: number) => {
@@ -121,6 +129,8 @@ export function ContentPipeline() {
  const handleReschedule = async (e: React.FormEvent) => {
  e.preventDefault();
  if (!rescheduleModal) return;
+ setIsRescheduleSaving(true);
+ try {
  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/content/${rescheduleModal.taskId}/admin-reschedule`, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
@@ -129,6 +139,9 @@ export function ContentPipeline() {
  setRescheduleModal(null);
  alert('Reschedule request sent to shooter via Telegram!');
  fetchData();
+ } finally {
+ setIsRescheduleSaving(false);
+ }
  };
 
  const handleStatusChange = async (taskId: number, newStatus: string) => {
@@ -147,6 +160,8 @@ export function ContentPipeline() {
  e.preventDefault();
  if (!feedbackTaskId) return;
 
+ setIsFeedbackSaving(true);
+ try {
  const formData = new FormData();
  formData.append('message', feedbackMessage);
  if (feedbackFile) formData.append('file', feedbackFile);
@@ -160,6 +175,9 @@ export function ContentPipeline() {
  setFeedbackMessage('');
  setFeedbackFile(null);
  fetchData();
+ } finally {
+ setIsFeedbackSaving(false);
+ }
  };
 
  if (loading) return <div>Loading Pipeline...</div>;
@@ -463,7 +481,9 @@ export function ContentPipeline() {
  </div>
  <div className="px-8 py-5 border-t border-slate-100 bg-slate-50 flex gap-3 shrink-0">
  <button type="button"onClick={() => setShowModal(false)} className="flex-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-3 rounded-xl text-sm font-semibold transition-all">Cancel</button>
- <button type="submit"className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/25">Create Task</button>
+ <button type="submit" disabled={isSaving} className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/25">
+ {isSaving ? 'Saving...' : 'Create Task'}
+ </button>
  </div>
  </form>
  </div>
@@ -496,7 +516,9 @@ export function ContentPipeline() {
  </div>
  <div className="flex gap-3">
  <button type="button"onClick={() => setRescheduleModal(null)} className="flex-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-3 rounded-xl text-sm font-semibold transition-all">Cancel</button>
- <button type="submit"className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-purple-500/25">Send Request</button>
+ <button type="submit" disabled={isRescheduleSaving} className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-purple-500/25">
+ {isRescheduleSaving ? 'Saving...' : 'Send Request'}
+ </button>
  </div>
  </form>
  </div>
@@ -609,7 +631,9 @@ export function ContentPipeline() {
  </div>
  <div className="flex gap-3">
  <button type="button"onClick={() => setFeedbackTaskId(null)} className="flex-1 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-3 rounded-xl text-sm font-semibold transition-all">Cancel</button>
- <button type="submit"className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/25">Send Feedback</button>
+ <button type="submit" disabled={isFeedbackSaving} className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-500/25">
+ {isFeedbackSaving ? 'Saving...' : 'Send Feedback'}
+ </button>
  </div>
  </form>
  </div>
