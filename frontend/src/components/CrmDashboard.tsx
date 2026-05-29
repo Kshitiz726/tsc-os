@@ -295,17 +295,21 @@ export function CrmDashboard() {
  });
 
  const exportClientsToExcel = () => {
-    const dataToExport = clients.map(c => ({
-      'Company Name': c.companyName,
-      'Email': c.contactEmail,
-      'Package': c.package,
-      'Status': c.status,
-      'Monthly Deliverables': c.monthlyDeliverables,
-      'Drive Links': c.driveLinks ? { 
-        text: c.driveLinks, 
-        hyperlink: c.driveLinks.startsWith('http') ? c.driveLinks : `https://${c.driveLinks}`
-      } : ''
-    }));
+    const dataToExport = clients.map(c => {
+      const generatedLink = c.driveFolderId ? `https://drive.google.com/drive/folders/${c.driveFolderId}` : '';
+      const linkToUse = generatedLink || c.driveLinks;
+      return {
+        'Company Name': c.companyName,
+        'Email': c.contactEmail,
+        'Package': c.package,
+        'Status': c.status,
+        'Monthly Deliverables': c.monthlyDeliverables,
+        'Drive Links': linkToUse ? { 
+          text: linkToUse, 
+          hyperlink: linkToUse.startsWith('http') ? linkToUse : `https://${linkToUse}`
+        } : ''
+      };
+    });
     const columns = [
       { header: 'Company Name', key: 'Company Name', width: 25 },
       { header: 'Email', key: 'Email', width: 30 },
