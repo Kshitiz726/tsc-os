@@ -301,7 +301,10 @@ export function CrmDashboard() {
       'Package': c.package,
       'Status': c.status,
       'Monthly Deliverables': c.monthlyDeliverables,
-      'Drive Links': c.driveLinks
+      'Drive Links': c.driveLinks ? { 
+        text: c.driveLinks, 
+        hyperlink: c.driveLinks.startsWith('http') ? c.driveLinks : `https://${c.driveLinks}`
+      } : ''
     }));
     const columns = [
       { header: 'Company Name', key: 'Company Name', width: 25 },

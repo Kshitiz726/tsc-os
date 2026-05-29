@@ -43,6 +43,10 @@ export async function exportToExcel(
 
     // Add thin borders to all cells
     row.eachCell((cell) => {
+      if (cell.value && typeof cell.value === 'object' && 'hyperlink' in cell.value) {
+        cell.font = { name: 'Inter', size: 11, color: { argb: 'FF0563C1' }, underline: true };
+      }
+      
       cell.border = {
         top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
         left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
